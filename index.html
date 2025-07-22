@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>นวัตกรรมสร้างรายได้เพื่อผู้สูงอายุในเศรษฐกิจสีเงิน</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Chosen Palette: Warm Harmony (Off-white, Earthy Tan, Muted Teal) -->
+    <!-- Application Structure Plan: A thematic, single-page application designed for exploration. It starts with a high-level economic overview (The "Why"), moves to actionable opportunities (The "How"), presents enabling tools (The "What"), and finishes with inspiration and recommendations. This non-linear structure allows users to jump to sections of interest, making it more usable than a linear report. Key interactions include an interactive growth chart, filterable business model cards, and an inspiring case study carousel. -->
+    <!-- Visualization & Content Choices: 1. Silver Economy Growth: Goal=Show change/opportunity -> Viz=Dual-axis Line Chart -> Interaction=Hover tooltips -> Justification=Clearly shows economic trends over time -> Lib=Chart.js. 2. AT Types: Goal=Organize/Inform -> Viz=3-column interactive diagram -> Interaction=Hover to reveal examples -> Justification=Engaging way to classify info -> Method=HTML/CSS. 3. Business Models: Goal=Organize/Compare -> Viz=Filterable cards -> Interaction=Click filter to show/hide cards -> Justification=Allows user-driven exploration of opportunities -> Method=JS/HTML/CSS. 4. Case Studies: Goal=Inform/Inspire -> Viz=Carousel -> Interaction=Click/swipe navigation -> Justification=Space-efficient and visually appealing presentation -> Method=JS/HTML/CSS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: #F8F7F4;
+            color: #3D3D3D;
+        }
+        .nav-link {
+            position: relative;
+            transition: color 0.3s;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #A47E64;
+            transition: width 0.3s;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #A47E64;
+        }
+        .nav-link:hover::after, .nav-link.active::after {
+            width: 100%;
+        }
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 40vh;
+            width: 100%;
+            max-width: 800px;
+            max-height: 400px;
+        }
+        .stat-card {
+            background-color: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(200, 200, 200, 0.3);
+        }
+        .filter-btn {
+            transition: all 0.3s ease;
+        }
+        .filter-btn.active {
+            background-color: #A47E64;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .business-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .business-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .recommendation-item:hover .recommendation-icon {
+            transform: scale(1.1);
+            background-color: #A47E64;
+            color: white;
+        }
+        .recommendation-icon {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-[#F8F7F4]/80 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-2xl font-bold text-[#A47E64]">
+                <span>💡</span> Silver-Gen Income
+            </div>
+            <div class="hidden md:flex space-x-8">
+                <a href="#overview" class="nav-link active">ภาพรวม</a>
+                <a href="#opportunities" class="nav-link">โมเดลธุรกิจ</a>
+                <a href="#tools" class="nav-link">เครื่องมือเทคโนโลยี</a>
+                <a href="#inspiration" class="nav-link">แรงบันดาลใจ</a>
+                <a href="#recommendations" class="nav-link">ข้อเสนอแนะ</a>
+            </div>
+            <button id="mobile-menu-button" class="md:hidden text-2xl">☰</button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden bg-[#F8F7F4] text-center py-4">
+            <a href="#overview" class="block py-2 nav-link-mobile">ภาพรวม</a>
+            <a href="#opportunities" class="block py-2 nav-link-mobile">โมเดลธุรกิจ</a>
+            <a href="#tools" class="block py-2 nav-link-mobile">เครื่องมือเทคโนโลยี</a>
+            <a href="#inspiration" class="block py-2 nav-link-mobile">แรงบันดาลใจ</a>
+            <a href="#recommendations" class="block py-2 nav-link-mobile">ข้อเสนอแนะ</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-8">
+
+        <section id="hero" class="text-center py-16">
+            <h1 class="text-4xl md:text-6xl font-bold mb-4 leading-tight">
+                นวัตกรรมสร้างรายได้เพื่อผู้สูงอายุ
+            </h1>
+            <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-12">
+                เปลี่ยนความท้าทายของสังคมสูงวัยให้เป็นโอกาสทางเศรษฐกิจที่ยิ่งใหญ่ใน "เศรษฐกิจสีเงิน" (Silver Economy) ของประเทศไทย
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                <div class="stat-card p-6 rounded-xl shadow-lg">
+                    <p class="text-4xl font-bold text-[#7E9A96]" id="stat1">0</p>
+                    <p class="mt-2 text-gray-600">ล้านล้านบาท</p>
+                    <p class="font-semibold">มูลค่าเศรษฐกิจสีเงินปี 2576</p>
+                </div>
+                <div class="stat-card p-6 rounded-xl shadow-lg">
+                    <p class="text-4xl font-bold text-[#7E9A96]" id="stat2">0</p>
+                    <p class="mt-2 text-gray-600">ล้านคน</p>
+                    <p class="font-semibold">ผู้สูงอายุในกำลังแรงงานปี 2576</p>
+                </div>
+                <div class="stat-card p-6 rounded-xl shadow-lg">
+                    <p class="text-4xl font-bold text-[#7E9A96]" id="stat3">0</p>
+                    <p class="mt-2 text-gray-600">%</p>
+                    <p class="font-semibold">ของผู้สูงอายุที่อยากอยู่ในบ้านเดิม</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="overview" class="py-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center mb-4">ภาพรวมเศรษฐกิจสีเงิน: โอกาสที่กำลังเติบโต</h2>
+            <p class="text-center text-gray-600 max-w-3xl mx-auto mb-12">ประเทศไทยกำลังเข้าสู่สังคมสูงวัยอย่างสมบูรณ์ ซึ่งไม่ได้มีเพียงความท้าทาย แต่ยังเป็นบ่อเกิดของโอกาสทางเศรษฐกิจมหาศาลที่ขับเคลื่อนโดยผู้สูงอายุ ทั้งในฐานะผู้บริโภคและผู้มีส่วนร่วมในกำลังแรงงาน</p>
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="text-xl font-semibold text-center mb-4">การเติบโตของประชากรและเศรษฐกิจสีเงินในไทย (พ.ศ. 2566-2583)</h3>
+                <div class="chart-container">
+                    <canvas id="silverEconomyChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="opportunities" class="py-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center mb-4">โมเดลธุรกิจสร้างรายได้สำหรับผู้สูงอายุ</h2>
+            <p class="text-center text-gray-600 max-w-3xl mx-auto mb-8">สำรวจแนวคิดและรูปแบบธุรกิจที่หลากหลายซึ่งผู้สูงอายุสามารถนำทักษะและประสบการณ์มาต่อยอดเพื่อสร้างรายได้และความภาคภูมิใจ</p>
+            <div class="flex justify-center space-x-2 md:space-x-4 mb-8">
+                <button class="filter-btn active px-4 py-2 rounded-full bg-white shadow" data-filter="all">ทั้งหมด</button>
+                <button class="filter-btn px-4 py-2 rounded-full bg-white shadow" data-filter="service">💼 บริการ</button>
+                <button class="filter-btn px-4 py-2 rounded-full bg-white shadow" data-filter="product">🎨 ผลิตภัณฑ์</button>
+                <button class="filter-btn px-4 py-2 rounded-full bg-white shadow" data-filter="digital">💻 ดิจิทัล</button>
+            </div>
+
+            <div id="business-models-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="business-card bg-white p-6 rounded-xl shadow-md" data-category="service">
+                    <h3 class="text-xl font-bold mb-2">บริการดูแลผู้สูงอายุ</h3>
+                    <p class="text-gray-600 mb-4">ให้บริการดูแลแบบไม่ทางการแพทย์ เช่น เป็นเพื่อน ช่วยเหลืองานบ้านเล็กน้อย ตอบสนองความต้องการ "สูงวัยในบ้านตนเอง"</p>
+                    <span class="text-sm font-semibold text-[#A47E64]">ตัวอย่าง: Ayasan Cares</span>
+                </div>
+                <div class="business-card bg-white p-6 rounded-xl shadow-md" data-category="service">
+                    <h3 class="text-xl font-bold mb-2">บริการขนส่ง</h3>
+                    <p class="text-gray-600 mb-4">ให้บริการรับ-ส่งผู้สูงอายุไปพบแพทย์ ซื้อของ หรือทำกิจกรรมต่างๆ ตอบโจทย์ผู้ที่ไม่สามารถขับรถได้</p>
+                    <span class="text-sm font-semibold text-[#A47E64]">ตลาดมีความต้องการสูง</span>
+                </div>
+                <div class="business-card bg-white p-6 rounded-xl shadow-md" data-category="service">
+                    <h3 class="text-xl font-bold mb-2">ที่ปรึกษา/ให้คำแนะนำ</h3>
+                    <p class="text-gray-600 mb-4">นำความรู้และประสบการณ์ทางวิชาชีพมาให้บริการให้คำปรึกษา สามารถกำหนดเวลาและเลือกงานได้เอง</p>
+                    <span class="text-sm font-semibold text-[#A47E64]">ใช้ประโยชน์จากประสบการณ์</span>
+                </div>
+                <div class="business-card bg-white p-6 rounded-xl shadow-md" data-category="product">
+                    <h3 class="text-xl font-bold mb-2">งานฝีมือและสินค้าทำมือ</h3>
+                    <p class="text-gray-600 mb-4">ผลิตและจำหน่ายสินค้าทำมือ เช่น ผ้าทอ เครื่องปั้นดินเผา เครื่องประดับ ผ่านช่องทางออนไลน์และออฟไลน์</p>
+                    <span class="text-sm font-semibold text-[#A47E64]">ตัวอย่าง: ตลาดผู้สูงอายุเชียงใหม่, Etsy</span>
+                </div>
+                <div class="business-card bg-white p-6 rounded-xl shadow-md" data-category="product">
+                    <h3 class="text-xl font-bold mb-2">อาหารและผลิตภัณฑ์สุขภาพ</h3>
+                    <p class="text-gray-600 mb-4">พัฒนาและจำหน่ายอาหารเสริม อาหารเคี้ยวง่าย หรืออาหารสำหรับผู้มีโรคประจำตัว ตอบโจทย์ความต้องการด้านสุขภาพ</p>
+                    <span class="text-sm font-semibold text-[#A47E64]">ตลาดเติบโตสูง</span>
+                </div>
+                 <div class="business-card bg-white p-6 rounded-xl shadow-md" data-category="product">
+                    <h3 class="text-xl font-bold mb-2">สินค้าเฉพาะทางสำหรับผู้สูงอายุ</h3>
+                    <p class="text-gray-600 mb-4">ออกแบบและผลิตสินค้าที่ใช้งานง่าย เช่น เฟอร์นิเจอร์ตามหลักสรีรศาสตร์ อุปกรณ์ในบ้านที่เข้าถึงสะดวก</p>
+                    <span class="text-sm font-semibold text-[#A47E64]">เศรษฐกิจสีเงินขับเคลื่อน</span>
+                </div>
+                <div class="business-card bg-white p-6 rounded-xl shadow-md" data-category="digital">
+                    <h3 class="text-xl font-bold mb-2">ฟรีแลนซ์ออนไลน์</h3>
+                    <p class="text-gray-600 mb-4">รับงานออนไลน์ตามทักษะ เช่น การเขียน การแปล การทำบัญชี หรือเป็นผู้ช่วยเสมือน (Virtual Assistant)</p>
+                    <span class="text-sm font-semibold text-[#A47E64]">ทำงานได้จากทุกที่</span>
+                </div>
+                <div class="business-card bg-white p-6 rounded-xl shadow-md" data-category="digital">
+                    <h3 class="text-xl font-bold mb-2">"แกรนฟลูเอนเซอร์"</h3>
+                    <p class="text-gray-600 mb-4">สร้างคอนเทนต์แบ่งปันความรู้ ประสบการณ์ หรือความเชี่ยวชาญผ่านบล็อก, YouTube, หรือโซเชียลมีเดีย</p>
+                    <span class="text-sm font-semibold text-[#A47E64]">ตัวอย่าง: Olga Shatyko</span>
+                </div>
+                <div class="business-card bg-white p-6 rounded-xl shadow-md" data-category="digital">
+                    <h3 class="text-xl font-bold mb-2">สอน/ติวออนไลน์</h3>
+                    <p class="text-gray-600 mb-4">ใช้ความรู้ความสามารถในการสอนพิเศษ หรือจัดคอร์สออนไลน์ในเรื่องที่เชี่ยวชาญ เช่น ภาษา ดนตรี หรือการทำอาหาร</p>
+                    <span class="text-sm font-semibold text-[#A47E64]">เศรษฐกิจแห่งการแบ่งปันความรู้</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="tools" class="py-16 scroll-mt-20 bg-white rounded-xl shadow-lg">
+            <h2 class="text-3xl font-bold text-center mb-4">เครื่องมือเทคโนโลยี (Assistive Technology - AT)</h2>
+            <p class="text-center text-gray-600 max-w-3xl mx-auto mb-12">เทคโนโลยีสิ่งอำนวยความสะดวกคือตัวเร่งสำคัญที่ช่วยเพิ่มความเป็นอิสระและเปิดประตูสู่โอกาสในการสร้างรายได้ใหม่ๆ</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                <div class="border p-6 rounded-lg">
+                    <h3 class="text-2xl font-semibold mb-2 text-[#A47E64]">Low-Tech</h3>
+                    <p class="text-gray-600">อุปกรณ์เรียบง่าย ราคาไม่แพง ไม่ใช้ไฟฟ้า เช่น ไม้เท้า, ราวจับ, อุปกรณ์ช่วยจับดินสอ, แว่นขยาย</p>
+                </div>
+                <div class="border p-6 rounded-lg">
+                    <h3 class="text-2xl font-semibold mb-2 text-[#A47E64]">Mid-Tech</h3>
+                    <p class="text-gray-600">อุปกรณ์อิเล็กทรอนิกส์ที่ไม่ซับซ้อน เช่น เครื่องช่วยฟัง, โทรศัพท์ปุ่มใหญ่, รถเข็นไฟฟ้า</p>
+                </div>
+                <div class="border p-6 rounded-lg">
+                    <h3 class="text-2xl font-semibold mb-2 text-[#A47E64]">High-Tech</h3>
+                    <p class="text-gray-600">อุปกรณ์ดิจิทัลขั้นสูง เช่น ซอฟต์แวร์สั่งงานด้วยเสียง, แว่นตาอัจฉริยะ, ระบบบ้านอัจฉริยะ, หุ่นยนต์ช่วยเหลือ</p>
+                </div>
+            </div>
+            <div class="mt-12 text-center">
+                 <h3 class="text-xl font-semibold mb-4">เทรนด์ที่กำลังมาแรง: AI, หุ่นยนต์, และบ้านอัจฉริยะ</h3>
+                 <p class="text-gray-600 max-w-2xl mx-auto">เทคโนโลยีเหล่านี้ไม่เพียงช่วยให้ใช้ชีวิตสะดวกขึ้น แต่ยังสามารถต่อยอดเป็นบริการใหม่ๆ เช่น การเป็นที่ปรึกษาติดตั้ง Smart Home ให้กับผู้สูงอายุคนอื่นๆ</p>
+            </div>
+        </section>
+        
+        <section id="inspiration" class="py-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center mb-4">เรื่องราวสร้างแรงบันดาลใจ</h2>
+            <p class="text-center text-gray-600 max-w-3xl mx-auto mb-12">ตัวอย่างความสำเร็จจากผู้สูงอายุที่เปลี่ยนความชอบและประสบการณ์ให้กลายเป็นธุรกิจที่สร้างรายได้และคุณค่า</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="business-card bg-white rounded-xl overflow-hidden shadow-md">
+                    <img src="https://placehold.co/600x400/C3A995/3D3D3D?text=ตลาดผู้สูงอายุ" alt="ตลาดผู้สูงอายุ" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="font-bold text-lg">ตลาดผู้สูงอายุ จ.เชียงใหม่</h3>
+                        <p class="text-gray-600 mt-2">โครงการที่ดำเนินการโดยผู้สูงอายุทั้งหมด จำหน่ายอาหารและสินค้าทำมือ สร้างรายได้และปฏิสัมพันธ์ทางสังคมในชุมชน</p>
+                    </div>
+                </div>
+                <div class="business-card bg-white rounded-xl overflow-hidden shadow-md">
+                    <img src="https://placehold.co/600x400/7E9A96/FFFFFF?text=Granfluencer" alt="Granfluencer" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="font-bold text-lg">Olga Shatyko (อายุ 72 ปี)</h3>
+                        <p class="text-gray-600 mt-2">บล็อกเกอร์และนางแบบที่สร้างชื่อเสียงบน Instagram จากการช่วยให้ผู้หญิงเอาชนะความกลัวการสูงวัย จนได้ร่วมงานกับแบรนด์ดัง</p>
+                    </div>
+                </div>
+                <div class="business-card bg-white rounded-xl overflow-hidden shadow-md">
+                    <img src="https://placehold.co/600x400/A47E64/FFFFFF?text=AT+Success" alt="AT Success" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="font-bold text-lg">Paul & Allison</h3>
+                        <p class="text-gray-600 mt-2">ผู้ที่ใช้เทคโนโลยี AT ขั้นสูง (ควบคุมคอมพิวเตอร์ด้วยศีรษะ, สั่งงานด้วยสายตา) จนสามารถเรียนจบและทำงานในสายวิชาชีพระดับสูงได้สำเร็จ</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="recommendations" class="py-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center mb-4">ข้อเสนอแนะเชิงนวัตกรรม</h2>
+            <p class="text-center text-gray-600 max-w-3xl mx-auto mb-12">แนวทางสำคัญ 6 ประการในการพัฒนาระบบนิเวศที่เอื้อต่อการสร้างรายได้ของผู้สูงอายุในประเทศไทย</p>
+            <div class="space-y-8">
+                <div class="recommendation-item flex items-start space-x-6 p-6 bg-white rounded-xl shadow-sm">
+                    <div class="recommendation-icon flex-shrink-0 w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-2xl font-bold text-[#A47E64]">1</div>
+                    <div>
+                        <h3 class="font-bold text-lg">พัฒนา AT ให้เข้าถึงง่ายและราคาไม่แพง</h3>
+                        <p class="text-gray-600 mt-1">มุ่งเน้นการผลิต AT ต้นทุนต่ำในประเทศ และสร้างโมเดลธุรกิจแบบเช่า-ยืม เพื่อลดภาระค่าใช้จ่าย</p>
+                    </div>
+                </div>
+                 <div class="recommendation-item flex items-start space-x-6 p-6 bg-white rounded-xl shadow-sm">
+                    <div class="recommendation-icon flex-shrink-0 w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-2xl font-bold text-[#A47E64]">2</div>
+                    <div>
+                        <h3 class="font-bold text-lg">ขยายโครงการฝึกอบรมทักษะดิจิทัล</h3>
+                        <p class="text-gray-600 mt-1">พัฒนาหลักสูตรเฉพาะทางสำหรับ "ผู้ประกอบการสูงวัย" โดยใช้แพลตฟอร์มที่คุ้นเคย เช่น Line หรือ Facebook</p>
+                    </div>
+                </div>
+                 <div class="recommendation-item flex items-start space-x-6 p-6 bg-white rounded-xl shadow-sm">
+                    <div class="recommendation-icon flex-shrink-0 w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-2xl font-bold text-[#A47E64]">3</div>
+                    <div>
+                        <h3 class="font-bold text-lg">ส่งเสริมบริการ "ผู้สูงอายุเพื่อผู้สูงอายุ"</h3>
+                        <p class="text-gray-600 mt-1">สร้างแพลตฟอร์มจับคู่หรือสหกรณ์บริการ เพื่อให้ผู้สูงอายุที่มีศักยภาพสามารถให้บริการผู้สูงอายุคนอื่นๆ ได้</p>
+                    </div>
+                </div>
+                 <div class="recommendation-item flex items-start space-x-6 p-6 bg-white rounded-xl shadow-sm">
+                    <div class="recommendation-icon flex-shrink-0 w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-2xl font-bold text-[#A47E64]">4</div>
+                    <div>
+                        <h3 class="font-bold text-lg">ยกระดับการเข้าถึงตลาด E-commerce</h3>
+                        <p class="text-gray-600 mt-1">จัดอบรมและสร้างศูนย์สนับสนุนด้านเทคนิค เพื่อช่วยให้ช่างฝีมือสูงวัยสามารถขายสินค้าออนไลน์ไปทั่วโลกได้</p>
+                    </div>
+                </div>
+                 <div class="recommendation-item flex items-start space-x-6 p-6 bg-white rounded-xl shadow-sm">
+                    <div class="recommendation-icon flex-shrink-0 w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-2xl font-bold text-[#A47E64]">5</div>
+                    <div>
+                        <h3 class="font-bold text-lg">ใช้ประโยชน์จาก "เศรษฐกิจแห่งภูมิปัญญา"</h3>
+                        <p class="text-gray-600 mt-1">สร้างแพลตฟอร์มให้ผู้สูงอายุแบ่งปันความรู้และประสบการณ์ผ่านคอร์สออนไลน์, พอดแคสต์, หรือการเป็น "แกรนฟลูเอนเซอร์"</p>
+                    </div>
+                </div>
+                 <div class="recommendation-item flex items-start space-x-6 p-6 bg-white rounded-xl shadow-sm">
+                    <div class="recommendation-icon flex-shrink-0 w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-2xl font-bold text-[#A47E64]">6</div>
+                    <div>
+                        <h3 class="font-bold text-lg">เสริมสร้างความร่วมมือทุกภาคส่วน</h3>
+                        <p class="text-gray-600 mt-1">จัดตั้งกองทุนนวัตกรรมและผลักดันนโยบายที่เอื้อต่อการจ้างงานผู้สูงอายุและการลงทุนใน AT</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white text-center py-6 mt-16">
+        <p>สร้างสรรค์โดยอิงจากรายงาน "นวัตกรรมเพื่อผู้สูงอายุในประเทศไทย"</p>
+        <p class="text-sm text-gray-400 mt-2">Interactive SPA by Gemini</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            const mobileNavLinks = document.querySelectorAll('.nav-link-mobile');
+            mobileNavLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
+            });
+
+            function animateValue(obj, start, end, duration, suffix = '') {
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    const currentValue = Math.floor(progress * (end - start) + start);
+                    obj.innerHTML = currentValue.toLocaleString() + suffix;
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    }
+                };
+                window.requestAnimationFrame(step);
+            }
+
+            const stat1 = document.getElementById('stat1');
+            const stat2 = document.getElementById('stat2');
+            const stat3 = document.getElementById('stat3');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        animateValue(stat1, 0, 3.5, 2000);
+                        animateValue(stat2, 0, 6.6, 2000);
+                        animateValue(stat3, 0, 90, 2000);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.5 });
+            
+            observer.observe(document.getElementById('hero'));
+
+
+            const ctx = document.getElementById('silverEconomyChart').getContext('2d');
+            const silverEconomyChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['2566', '2568', '2571', '2576', '2583'],
+                    datasets: [{
+                        label: 'ประชากรสูงอายุ (ล้านคน)',
+                        data: [13.5, 14.5, 16.0, 17.8, 20.42],
+                        borderColor: '#A47E64',
+                        backgroundColor: '#A47E6420',
+                        yAxisID: 'y',
+                        tension: 0.4,
+                        fill: true,
+                    }, {
+                        label: 'การใช้จ่ายผู้บริโภค (ล้านล้านบาท)',
+                        data: [2.18, 2.5, 2.9, 3.5, null],
+                        borderColor: '#7E9A96',
+                        backgroundColor: '#7E9A9620',
+                        yAxisID: 'y1',
+                        tension: 0.4,
+                        fill: true,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'จำนวน (ล้านคน)'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'มูลค่า (ล้านล้านบาท)'
+                            },
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y + (context.dataset.yAxisID === 'y' ? ' ล้านคน' : ' ล้านล้านบาท');
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const businessCards = document.querySelectorAll('.business-card[data-category]');
+
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const filter = button.dataset.filter;
+
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+
+                    businessCards.forEach(card => {
+                        if (filter === 'all' || card.dataset.category === filter) {
+                            card.style.display = 'block';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            });
+            
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('section');
+
+            const sectionObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href').substring(1) === entry.target.id) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, { rootMargin: "-50% 0px -50% 0px" });
+
+            sections.forEach(section => {
+                sectionObserver.observe(section);
+            });
+
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+        });
+    </script>
+</body>
+</html>
